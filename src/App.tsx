@@ -13,17 +13,46 @@ function App() {
     });
   }, []);
 
-  function createTodo() {
-    client.models.Todo.create({ content: window.prompt("Todo content") });
+  async function createTodo() {
+    
+    var content;
+    while (true) {
+      let todoToAdd = await window.prompt("Todo content");
+      
+      if (todoToAdd != "") {
+        content = todoToAdd;
+        break;
+      }
+    }
+
+    if (content == null) {
+      return;
+    }
+
+    let contentPromise = await client.models.Todo.create({ content: content });
+
+    if (contentPromise.data?.content == "") {
+      console.log("Todo is null");
+    } else {
+      console.log("Todo is not null");
+    }
+
+  }
+
+  function deleteTodo(id: string) {
+    client.models.Todo.delete({ id })
   }
 
   return (
     <main>
       <h1>My todos</h1>
-      <button onClick={createTodo}>+ new</button>
+      <button onClick={createTodo}>+ New</button>
       <ul>
         {todos.map((todo) => (
-          <li key={todo.id}>{todo.content}</li>
+          <li 
+          onClick={() => deleteTodo(todo.id)}
+          key={todo.id}>{todo.content}
+          </li>
         ))}
       </ul>
       <div>
